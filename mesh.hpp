@@ -9,6 +9,7 @@ class Texture2D;
 namespace kazakami
 {
 
+typedef unsigned short ushort;
 typedef unsigned char uchar;
 class PMXLoader;
 

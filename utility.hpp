@@ -11,6 +11,8 @@ namespace kazakami
 
 #ifdef __linux__
 const char directorySeparator = '/';
+#elif defined __APPLE__
+const char directorySeparator = '/'; 
 #else
 assert("Set directory Sparator");
 #endif

@@ -6,6 +6,7 @@
 namespace kazakami
 {
 
+typedef unsigned int uint;
 class imageLoader;
   
 class Texture2D

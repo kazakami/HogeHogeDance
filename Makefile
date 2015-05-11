@@ -1,7 +1,22 @@
 OBJS = Quaternion.o Vector.o Matrix4x4d.o imageLoader.o pmxLoader.o vmdLoader.o mesh.o Texture2D.o utility.o
 WARNINGS = -Wall -Wextra -W -Wpointer-arith -Wcast-qual -Wcast-align -Woverlength-strings
+
+
+UNAME = ${shell uname}
+ifeq ($(UNAME),Linux)
+# for Linux
 CXXFLAGS = $(WARNINGS) -std=c++11
 LDLIBS = -lGL -lGLU -lglut -lpng
+endif
+
+ifeq ($(UNAME),Darwin)
+# for MacOSX
+CXXFLAGS = $(WARNINGS) -I/usr/X11R6/include -std=c++0x
+LDLIBS = -framework GLUT -framework OpenGL -lpng -liconv
+endif
+
+
+
 
 
 .SUFFIXES: .cpp .o
