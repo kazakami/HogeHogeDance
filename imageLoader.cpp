@@ -109,23 +109,23 @@ int imageLoader::loadPNG(const char * filename)
     owata("can not file header");
   if (png_sig_cmp((png_bytep)header, 0, 8))
     owata("it`s not png fle");
-
+  std::cerr << "png" << std::endl;
   png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (!png_ptr)
-    owata("png_create_read_struct fail");
+    owata("png_create_read_struct fail in making png struct");
 
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
   {
     png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-    owata("png_create_info_struct fail");
+    owata("png_create_info_struct fail in making info struct");
   }
 
   png_infop end_info = png_create_info_struct(png_ptr);
   if (!end_info)
   {
     png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
-    owata("png_create_info_struct fail");
+    owata("png_create_info_struct fail in making end info struct");
   }
 
   if (setjmp(png_jmpbuf(png_ptr)))
