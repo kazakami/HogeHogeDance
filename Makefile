@@ -12,7 +12,7 @@ endif
 ifeq ($(UNAME),Darwin)
 # for MacOSX
 CXXFLAGS = $(WARNINGS) -I/usr/X11R6/include -std=c++0x
-LDLIBS = -framework GLUT -framework OpenGL -L/usr/X11/lib -lpng -liconv
+LDLIBS = -framework GLUT -framework OpenGL -L/usr/X11/lib -lGLEW -lpng -liconv
 endif
 
 
