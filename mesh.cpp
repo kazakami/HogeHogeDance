@@ -4,7 +4,6 @@
 #include "utility.hpp"
 
 
-
 namespace kazakami
 {
 
@@ -95,6 +94,16 @@ void Mesh::Draw()
   glEnd();
   //*/
   //*
+  static bool compiled = false;
+  static GLuint dispList;
+  if (compiled)
+  {
+    glCallList(dispList);
+    return;
+  }
+  compiled = true;
+  dispList = glGenLists(1);
+  glNewList(dispList , GL_COMPILE);
   int drawnVertexNum = 0;
   for (int mtr_i = 0; mtr_i < pmx->mtrNum; mtr_i++)
   {
@@ -141,10 +150,12 @@ void Mesh::Draw()
     glEnd();
     drawnVertexNum += mat.vertexNum;
   }
+  glEndList();
   //*/
 }
   
 }
+
 
 
 

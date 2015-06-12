@@ -6,7 +6,7 @@ UNAME = ${shell uname}
 ifeq ($(UNAME),Linux)
 # for Linux
 CXXFLAGS = $(WARNINGS) -std=c++11
-LDLIBS = -lGL -lGLU -lglut -lpng
+LDLIBS = -lGL -lGLU -lglut -lGLEW -lpng
 endif
 
 ifeq ($(UNAME),Darwin)
