@@ -109,7 +109,7 @@ int imageLoader::loadPNG(const char * filename)
     owata("can not file header");
   if (png_sig_cmp((png_bytep)header, 0, 8))
     owata("it`s not png fle");
-  std::cerr << "png" << std::endl;
+  //std::cerr << "png" << std::endl;
   png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (!png_ptr)
     owata("png_create_read_struct fail in making png struct");
