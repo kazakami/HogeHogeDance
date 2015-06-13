@@ -82,7 +82,7 @@ void Shader::printProgramInfoLog(GLuint program)
 bool Shader::ReadVertex(const std::string & filename)
 {
   vertShader = glCreateShader(GL_VERTEX_SHADER);
-  if (readShaderSource(vertShader, filename))
+  if (!readShaderSource(vertShader, filename))
   {
     std::cerr << "read err in vertex" << std::endl;
     return false;
@@ -93,7 +93,7 @@ bool Shader::ReadVertex(const std::string & filename)
 bool Shader::ReadFragment(const std::string & filename)
 {
   fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-  if (readShaderSource(fragShader, filename))
+  if (!readShaderSource(fragShader, filename))
   {
     std::cerr << "read err in fragment Shader" << std::endl;
     return false;
