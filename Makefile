@@ -1,4 +1,4 @@
-OBJS = Quaternion.o Vector.o Matrix4x4d.o imageLoader.o pmxLoader.o vmdLoader.o mesh.o Texture2D.o utility.o
+OBJS = Quaternion.o Vector.o Matrix4x4d.o imageLoader.o pmxLoader.o vmdLoader.o mesh.o Texture2D.o utility.o Shader.o
 WARNINGS = -Wall -Wextra -W -Wpointer-arith -Wcast-qual -Wcast-align -Woverlength-strings
 
 

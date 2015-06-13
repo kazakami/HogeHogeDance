@@ -2,16 +2,15 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <string>
+#include <memory>
 
 #include "utility.hpp"
 #include "mesh.hpp"
 #include "pmxLoader.hpp"
+#include "Shader.hpp"
 
 kazakami::Mesh mesh;
-static GLuint vertShader;
-static GLuint fragShader;
-static GLuint gl2Program;
-
+std::shared_ptr<kazakami::Shader> shader;
 
 struct Options
 {
@@ -29,19 +28,11 @@ struct Options
 
 Options readCommandLineOption(int, char**);
 
-int readShaderSource(GLuint shader, const char *file);
-
-void printShaderInfoLog(GLuint shader);
-
-void printProgramInfoLog(GLuint program);
-
 void sayonara(const std::string & str, int n = 1)
 {
   std::cerr << str << std::endl;
   exit(n);
 }
-
-
 
 void display()
 {
@@ -66,54 +57,11 @@ void initGLSL()
 {
   glewInit();
 
-  vertShader = glCreateShader(GL_VERTEX_SHADER);
-  fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-  if (readShaderSource(vertShader, "texture.vert")) sayonara("read err in vert");
-  if (readShaderSource(fragShader, "texture.frag")) sayonara("read err in frag");
-
-  GLint compiled, linked;
-
-  /* バーテックスシェーダのソースプログラムのコンパイル */
-  glCompileShader(vertShader);
-  glGetShaderiv(vertShader, GL_COMPILE_STATUS, &compiled);
-  printShaderInfoLog(vertShader);
-  if (compiled == GL_FALSE) {
-    fprintf(stderr, "Compile error in vertex shader.\n");
-    exit(1);
-  }
-
-  /* フラグメントシェーダのソースプログラムのコンパイル */
-  glCompileShader(fragShader);
-  glGetShaderiv(fragShader, GL_COMPILE_STATUS, &compiled);
-  printShaderInfoLog(fragShader);
-  if (compiled == GL_FALSE) {
-    fprintf(stderr, "Compile error in fragment shader.\n");
-    exit(1);
-  }
-
-  /* プログラムオブジェクトの作成 */
-  gl2Program = glCreateProgram();
-
-  /* シェーダオブジェクトのシェーダプログラムへの登録 */
-  glAttachShader(gl2Program, vertShader);
-  glAttachShader(gl2Program, fragShader);
-
-  /* シェーダオブジェクトの削除 */
-  glDeleteShader(vertShader);
-  glDeleteShader(fragShader);
-
-  /* シェーダプログラムのリンク */
-  glLinkProgram(gl2Program);
-  glGetProgramiv(gl2Program, GL_LINK_STATUS, &linked);
-  printProgramInfoLog(gl2Program);
-  if (linked == GL_FALSE) {
-    fprintf(stderr, "Link error.\n");
-    exit(1);
-  }
-
-  glUseProgram(gl2Program);
-  return;
+  shader = std::make_shared<kazakami::Shader>();
+  shader->ReadVertex("texture.vert");
+  shader->ReadFragment("texture.frag");
+  shader->MakeProgram();
+  glUseProgram(shader->GetProgram());
 }
 
 void init(const Options & opt)
@@ -127,7 +75,6 @@ void init(const Options & opt)
   
   mesh.LoadPMX(opt.directoryName, opt.filename);
 }
-
 
 void resize(int w, int h)
 {
@@ -163,8 +110,6 @@ int main(int argc, char * argv[])
   return 0;
 }
 
-
-
 Options readCommandLineOption(int argc, char * argv[])
 {
   Options opt;
@@ -185,95 +130,4 @@ Options readCommandLineOption(int argc, char * argv[])
     i++;
   }
   return opt;
-}
-
-/*
-** シェーダーのソースプログラムをメモリに読み込む
-*/
-int readShaderSource(GLuint shader, const char *file)
-{
-  FILE * fp;
-  GLchar * source;
-  GLsizei length;
-  int ret;
-
-  /* ファイルを開く */
-  fp = fopen(file, "rb");
-  if (fp == NULL) {
-    perror(file);
-    return -1;
-  }
-
-  /* ファイルの末尾に移動し現在位置（つまりファイルサイズ）を得る */
-  fseek(fp, 0L, SEEK_END);
-  length = ftell(fp);
-
-  /* ファイルサイズのメモリを確保 */
-  source = (GLchar *)malloc(length);
-  if (source == NULL) {
-    fprintf(stderr, "Could not allocate read buffer.\n");
-    return -1;
-  }
-
-  /* ファイルを先頭から読み込む */
-  fseek(fp, 0L, SEEK_SET);
-  ret = fread(source, 1, length, fp) != (size_t)length;
-  fclose(fp);
-
-  /* シェーダのソースプログラムのシェーダオブジェクトへの読み込み */
-  if (ret)
-    fprintf(stderr, "Could not read file: %s.\n", file);
-  else
-    glShaderSource(shader, 1, &source, &length);
-
-  /* 確保したメモリの開放 */
-  free(source);
-
-  return ret;
-}
-
-
-void printShaderInfoLog(GLuint shader)
-{
-  GLsizei bufSize;
-
-  glGetShaderiv(shader, GL_INFO_LOG_LENGTH , &bufSize);
-
-  if (bufSize > 1) {
-    GLchar *infoLog;
-
-    infoLog = (GLchar *)malloc(bufSize);
-    if (infoLog != NULL) {
-      GLsizei length;
-
-      glGetShaderInfoLog(shader, bufSize, &length, infoLog);
-      fprintf(stderr, "InfoLog:\n%s\n\n", infoLog);
-      free(infoLog);
-    }
-    else
-      fprintf(stderr, "Could not allocate InfoLog buffer.\n");
-  }
-}
-
-
-void printProgramInfoLog(GLuint program)
-{
-  GLsizei bufSize;
-
-  glGetProgramiv(program, GL_INFO_LOG_LENGTH , &bufSize);
-
-  if (bufSize > 1) {
-    GLchar *infoLog;
-
-    infoLog = (GLchar *)malloc(bufSize);
-    if (infoLog != NULL) {
-      GLsizei length;
-
-      glGetProgramInfoLog(program, bufSize, &length, infoLog);
-      fprintf(stderr, "InfoLog:\n%s\n\n", infoLog);
-      free(infoLog);
-    }
-    else
-      fprintf(stderr, "Could not allocate InfoLog buffer.\n");
-  }
 }
