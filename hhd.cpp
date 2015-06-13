@@ -1,8 +1,11 @@
 #include <iostream>
+#include <fstream>
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <string>
 #include <memory>
+#include <vector>
+#include <tuple>
 
 #include "utility.hpp"
 #include "mesh.hpp"
@@ -10,7 +13,8 @@
 #include "Shader.hpp"
 
 kazakami::Mesh mesh;
-std::shared_ptr<kazakami::Shader> shader;
+std::vector<std::tuple<std::shared_ptr<kazakami::Shader>, std::string>> shaders;
+int usingShaderIndex = -1;
 
 struct Options
 {
@@ -53,17 +57,6 @@ void display()
   glutSwapBuffers();
 }
 
-void initGLSL()
-{
-  glewInit();
-
-  shader = std::make_shared<kazakami::Shader>();
-  shader->ReadVertex("texture.vert");
-  shader->ReadFragment("texture.frag");
-  shader->MakeProgram();
-  glUseProgram(shader->GetProgram());
-}
-
 void init(const Options & opt)
 {
   glClearColor(0.0, 0.0, 1.0, 1.0);
@@ -80,18 +73,61 @@ void resize(int w, int h)
 {
   glViewport(0, 0, w, h);
   
-  /* 透視変換行列の設定 */
+  //透視変換行列の設定
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(30.0, (double)w / (double)h, 1.0, 100.0);
 
-  /* モデルビュー変換行列の設定 */
+  //モデルビュー変換行列の設定
   glMatrixMode(GL_MODELVIEW);
 }
 
-void idle(void)
+void idle()
 {
   glutPostRedisplay();
+}
+
+void loadShaders()
+{
+  const std::string filename = "shadernames";
+  std::ifstream ifs(filename);
+  if (ifs.fail())
+    return;
+
+  std::string str;
+  while (getline(ifs, str))
+  {
+    auto shader = std::make_shared<kazakami::Shader>();
+    shader->ReadVertex(str + ".vert");
+    shader->ReadFragment(str + ".frag");
+    shader->MakeProgram();
+    shaders.push_back(std::make_tuple(shader, str));
+  }
+}
+
+void initGLSL()
+{
+  glewInit();
+
+  loadShaders();
+  glUseProgram(0);
+}
+
+void key(unsigned char key , int, int)
+{
+  if (key == 13)
+    usingShaderIndex++;
+  if (usingShaderIndex >= (int)shaders.size())
+  {
+    usingShaderIndex = -1;
+    glUseProgram(0);
+    std::cerr << "set shader : Fixed pipeline" << std::endl;
+  }
+  else
+  {
+    glUseProgram(std::get<0>(shaders[usingShaderIndex])->GetProgram());
+    std::cerr << "set shader : " << std::get<1>(shaders[usingShaderIndex]) << std::endl;
+  }
 }
 
 int main(int argc, char * argv[])
@@ -103,6 +139,7 @@ int main(int argc, char * argv[])
   glutCreateWindow("Hoge Hoge Dance");
   glutDisplayFunc(display);
   glutReshapeFunc(resize);
+  glutKeyboardFunc(key);
   glutIdleFunc(idle);
   init(opt);
   initGLSL();
