@@ -5,7 +5,7 @@ WARNINGS = -Wall -Wextra -W -Wpointer-arith -Wcast-qual -Wcast-align -Woverlengt
 UNAME = ${shell uname}
 ifeq ($(UNAME),Linux)
 # for Linux
-CXXFLAGS = $(WARNINGS) -std=c++11
+CXXFLAGS = $(WARNINGS) -std=c++11 -O3
 LDLIBS = -lGL -lGLU -lglut -lGLEW -lpng
 endif
 

@@ -117,6 +117,8 @@ void key(unsigned char key , int, int)
 {
   if (key == 13)
     usingShaderIndex++;
+  else
+    return;
   if (usingShaderIndex >= (int)shaders.size())
   {
     usingShaderIndex = -1;
