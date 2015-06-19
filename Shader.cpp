@@ -81,6 +81,10 @@ void Shader::printProgramInfoLog(GLuint program)
 
 bool Shader::ReadVertex(const std::string & filename)
 {
+  if (vertShader != 0)
+  {
+    glDeleteShader(vertShader);
+  }
   vertShader = glCreateShader(GL_VERTEX_SHADER);
   if (!readShaderSource(vertShader, filename))
   {
@@ -92,6 +96,10 @@ bool Shader::ReadVertex(const std::string & filename)
 
 bool Shader::ReadFragment(const std::string & filename)
 {
+  if (fragShader != 0)
+  {
+    glDeleteShader(fragShader);
+  }
   fragShader = glCreateShader(GL_FRAGMENT_SHADER);
   if (!readShaderSource(fragShader, filename))
   {
