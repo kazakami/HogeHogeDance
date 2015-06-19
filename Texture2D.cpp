@@ -20,9 +20,13 @@ int Texture2D::Load(const std::string & filename)
     glDeleteTextures(1, &texName);
 
   glGenTextures(1, &texName);
+  texNameGenerated = true;
   //テクスチャ名の取得に失敗したら
   if (texName == GL_INVALID_VALUE)
+  {
+    texNameGenerated = false;
     return -1;
+  }
 
   glBindTexture(GL_TEXTURE_2D , texName);
   //拡大・縮小についての設定
